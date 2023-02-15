@@ -1,7 +1,23 @@
+import chalk from 'chalk';
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import { executablePath } from 'puppeteer';
 puppeteer.use(StealthPlugin());
+
+const args = process.argv;
+let [,, url] = args;
+
+if (!url) {
+    console.log(`${chalk.bgRed('ERROR:')} Url is absent`)
+    process.exit(1);
+}
+
+url = url.trim().toLowerCase();
+
+if (!/^(http|https):\/\/[^ "]+$/.test(url.trim())) {
+    console.log(`${chalk.bgRed('ERROR:')} Invalid format of url`)
+    process.exit(1);
+}
 
 (async () => {
     const browser = await puppeteer.launch({ executablePath: executablePath() });
@@ -50,7 +66,7 @@ puppeteer.use(StealthPlugin());
         }
     });
 
-    await page.goto('https://dev.amidstyle.com/', {waitUntil: 'load'});
+    await page.goto(url, {waitUntil: 'load'});
     await page.evaluate(async () => {
         const newProto = navigator.__proto__;
         delete newProto.webdriver;
